@@ -40,38 +40,10 @@ def main():
         # ----- Find matching location from Trips JSON ----- #
         matched_location = custom_utils.find_matching_location(Photo_datetime, Trips)
 
-        # ----- Check for collision >> Name Suggestion ----- #
-        suggested_name = target_dir / Path(
-            matched_location
-            + " | "
-            + Photo_datetime.strftime("%Y_%m_%d -  %Hh %Mm %Ss")
-            + ".JPG"
+        # ----- Check for collision >> Name Suggestion ----- # // Requires: sorted_names, target_dir, matched_location, Photo_datetime
+        rename_log[item] = custom_utils.decide_name(
+            sorted_names, target_dir, matched_location, Photo_datetime, item
         )
-
-        # ----- Check for collision >> shift name until available ----- #
-        if sorted_names.get(suggested_name, 0) == 0:
-            final_name = suggested_name
-            sorted_names[suggested_name] = 1
-        else:
-            final_name = custom_utils.shift_name(
-                target_dir,
-                matched_location,
-                sorted_names,
-                suggested_name,
-                Photo_datetime,
-            )
-            sorted_names[suggested_name] += 1
-
-        while final_name.exists() and item != final_name:
-            final_name = custom_utils.shift_name(
-                target_dir,
-                matched_location,
-                sorted_names,
-                suggested_name,
-                Photo_datetime,
-            )
-            sorted_names[suggested_name] += 1
-        rename_log[item] = final_name
 
     # ----- Check if user is fine with renaming ----- #
     for original, target in rename_log.items():
