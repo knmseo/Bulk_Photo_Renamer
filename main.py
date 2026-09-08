@@ -62,7 +62,7 @@ def main():
             )
             sorted_names[suggested_name] += 1
 
-        while final_name.exists():
+        while final_name.exists() and item != final_name:
             final_name = custom_utils.shift_name(
                 target_dir,
                 matched_location,
@@ -87,9 +87,8 @@ def main():
         sys.exit()
 
     # ----- Actually move the files ----- #
-    for item in Path("Photos").iterdir():
-        if item.suffix == ".JPG":
-            item.rename(rename_log[item])
+    for item, target in rename_log.items():
+        item.rename(target)
 
 
 if __name__ == "__main__":

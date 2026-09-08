@@ -38,9 +38,8 @@ def find_matching_location(Photo_DateTime, Trips):
         if start <= Photo_DateTime <= end:
             matched_location = f"{trip['country']} - {trip['city']}"
             return matched_location
-        else:
-            matched_location = "Unknown"
-            return matched_location
+    matched_location = "Unknown"
+    return matched_location
 
 
 def shift_name(
