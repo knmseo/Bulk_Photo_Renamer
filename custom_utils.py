@@ -35,5 +35,5 @@ def find_matching_location(Photo_DateTime, Trips):
     for trip in Trips:
         start, end = extract_trip_data(trip)
         if start <= Photo_DateTime <= end:
-            matched_location = f"{trip['country']}: {trip['city']}"
+            matched_location = f"{trip['country']} - {trip['city']}"
             return matched_location
