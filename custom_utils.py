@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 
 from PIL import ExifTags
 
@@ -37,3 +38,20 @@ def find_matching_location(Photo_DateTime, Trips):
         if start <= Photo_DateTime <= end:
             matched_location = f"{trip['country']} - {trip['city']}"
             return matched_location
+        else:
+            matched_location = "Unknown"
+            return matched_location
+
+
+def shift_name(
+    target_dir, matching_location, sorted_names, suggested_name, Photo_DateTime
+):
+    final_name = target_dir / Path(
+        matching_location
+        + "_"
+        + str(sorted_names[suggested_name])
+        + " | "
+        + Photo_DateTime.strftime("%Y_%m_%d -  %Hh %Mm %Ss")
+        + ".JPG"
+    )
+    return final_name

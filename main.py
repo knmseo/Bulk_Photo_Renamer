@@ -14,6 +14,7 @@ target_dir = Path("Photos")
 
 rename_log = {}
 sorted_names = {}
+errors = {}
 
 
 def main():
@@ -25,6 +26,7 @@ def main():
     for item in Path("Photos").iterdir():
         # ----- Only handle .JPG files ----- #
         if item.suffix != ".JPG":
+            errors[item.name] = "Not a JPG file!"
             continue
 
         # ----- Open image's EXIF data to extract DateTime ----- #
@@ -32,7 +34,7 @@ def main():
 
         # ----- Skip over images that don't have EXIF data ----- #
         if EXIF_exists == False:
-            print(f"No EXIF in {item}")
+            errors[item.name] = "Doesn't have EXIF info!"
             continue
 
         # ----- Find matching location from Trips JSON ----- #
@@ -40,7 +42,10 @@ def main():
 
         # ----- Check for collision >> Name Suggestion ----- #
         suggested_name = target_dir / Path(
-            matched_location + " | " + str(Photo_datetime) + ".JPG"
+            matched_location
+            + " | "
+            + Photo_datetime.strftime("%Y_%m_%d -  %Hh %Mm %Ss")
+            + ".JPG"
         )
 
         # ----- Check for collision >> shift name until available ----- #
@@ -48,20 +53,36 @@ def main():
             final_name = suggested_name
             sorted_names[suggested_name] = 1
         else:
-            final_name = target_dir / Path(
-                matched_location
-                + str(sorted_names[suggested_name])
-                + " | "
-                + str(Photo_datetime)
-                + ".JPG"
+            final_name = custom_utils.shift_name(
+                target_dir,
+                matched_location,
+                sorted_names,
+                suggested_name,
+                Photo_datetime,
             )
             sorted_names[suggested_name] += 1
 
+        while final_name.exists():
+            final_name = custom_utils.shift_name(
+                target_dir,
+                matched_location,
+                sorted_names,
+                suggested_name,
+                Photo_datetime,
+            )
+            sorted_names[suggested_name] += 1
         rename_log[item] = final_name
 
     # ----- Check if user is fine with renaming ----- #
-    print(rename_log)
-    ans = input("Can I Proceed?(y/n)")
+    for original, target in rename_log.items():
+        print(f"{original.name} >> {target.name}")
+
+    # ----- Report Errors ----- #
+    print("\n# ----- Errors ----- #")
+    for name, error in errors.items():
+        print(f"{name} >> {error}")
+
+    ans = input("\nCan I Proceed?(y/n)")
     if ans != "y":
         sys.exit()
 
